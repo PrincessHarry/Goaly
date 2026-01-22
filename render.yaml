@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: goaly
+    env: python
+    buildCommand: |
+      pip install -r requirements.txt
+      python manage.py migrate
+      python manage.py collectstatic --no-input
+    startCommand: gunicorn goaly.wsgi:application
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: goaly.settings
