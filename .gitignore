@@ -1,0 +1,50 @@
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+
+# =========================
+# Virtual Environments
+# =========================
+venv/
+env/
+.venv/
+goalenv/
+
+# =========================
+# Django
+# =========================
+*.log
+local_settings.py
+
+# =========================
+# Environment Variables
+# =========================
+.env
+
+# =========================
+# OS
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Frontend (future-proof)
+# =========================
+node_modules/
+dist/
+build/
+
+# =========================
+# Testing
+# =========================
+.coverage
+htmlcov/
+.pytest_cache/
+
+# =========================
+# NOTE:
+# db.sqlite3 is intentionally NOT ignored
+# migrations are intentionally NOT ignored
+# .vscode is intentionally NOT ignored (Cursor support)
