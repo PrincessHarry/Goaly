@@ -34,7 +34,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = os.getenv("DEBUG") == "True"
 
 ALLOWED_HOSTS = [
-    "goaly.onrender.com",
+    "goaly-x5eb.onrender.com",
     "localhost",
     "127.0.0.1",
 ]
