@@ -17,6 +17,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from goals import views as goals_views
+
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path("", goals_views.landing, name="landing"),
+    path("admin/", admin.site.urls),
 ]

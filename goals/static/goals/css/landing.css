@@ -1,0 +1,84 @@
+/* =========================
+   GOALY BRAND STYLES
+   ========================= */
+
+/* Logo styling */
+.goaly-logo {
+    font-family: 'Pacifico', cursive;
+    letter-spacing: 0.5px;
+}
+
+/* =========================
+   SMOOTH PAGE LOAD
+   ========================= */
+
+.fade-in {
+    animation: fadeIn 0.8s ease-out both;
+}
+
+.slide-up {
+    animation: slideUp 0.8s ease-out both;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =========================
+   CARD POLISH
+   ========================= */
+
+.card-hover {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+/* =========================
+   BUTTON POLISH
+   ========================= */
+
+.btn-primary {
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+}
+
+/* =========================
+   FOCUS STATES (ACCESSIBILITY)
+   ========================= */
+
+a:focus-visible,
+button:focus-visible {
+    outline: 2px solid #6a8470;
+    outline-offset: 2px;
+}
+
+/* =========================
+   FOOTER SMALL TEXT
+   ========================= */
+
+.footer-text {
+    font-size: 0.9rem;
+}

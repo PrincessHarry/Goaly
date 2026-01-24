@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Goaly – Set Goals. Stay Consistent.</title>
+
+    <!-- Google Font for Logo -->
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS (CDN for now, we'll optimize later) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tailwind Config for Sage Colors -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sage: {
+                            50: '#f4f7f4',
+                            100: '#e7ede7',
+                            200: '#cedbcd',
+                            300: '#abbfb1',
+                            400: '#869f8b',
+                            500: '#6a8470',
+                            600: '#536a58',
+                            700: '#445648',
+                            800: '#38463c',
+                            900: '#303b33',
+                            950: '#1a201c',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Custom CSS -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'goals/css/landing.css' %}">
+</head>
+<body class="bg-sage-50 text-sage-900">
+
+    <!-- ================= NAVBAR ================= -->
+    <nav class="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto">
+        <!-- Logo -->
+        <div class="text-2xl text-sage-700 goaly-logo">
+            Goaly
+        </div>
+
+        <!-- Nav Links -->
+        <div class="hidden md:flex items-center gap-6">
+            <a href="#how-it-works" class="hover:text-sage-600 transition">How it works</a>
+            <a href="#features" class="hover:text-sage-600 transition">Features</a>
+        </div>
+
+        <!-- Auth Buttons -->
+        <div class="flex items-center gap-4">
+            <a href="/login" class="text-sage-700 hover:underline">Login</a>
+            <a href="/register"
+               class="bg-sage-600 text-white px-4 py-2 rounded-lg hover:bg-sage-700 btn-primary">
+                Get Started
+            </a>
+        </div>
+    </nav>
+
+    <!-- ================= HERO SECTION ================= -->
+    <section class="max-w-7xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-12 items-center">
+        <!-- Text -->
+        <div>
+            <h1 class="text-4xl md:text-5xl font-bold slide-up leading-tight">
+                Set Goals. <span class="text-sage-600">Stay Consistent.</span><br>
+                Win Real Rewards.
+            </h1>
+
+            <p class="mt-6 text-lg text-sage-700">
+                Goaly helps you break big goals into daily actions, stay accountable,
+                and build productive habits that actually stick.
+            </p>
+
+            <!-- Email Signup Form -->
+            <div class="mt-8">
+                <form method="POST" class="flex flex-col sm:flex-row gap-4">
+                    {% csrf_token %}
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="w-full mb-4 p-3 bg-sage-100 border border-sage-300 text-sage-700 rounded-lg text-sm">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    <!-- <input type="email" 
+                           name="email" 
+                           placeholder="Enter your email" 
+                           class="flex-1 px-4 py-3 border border-sage-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sage-500 focus:border-transparent"
+                           required> -->
+                    <button type="submit" 
+                            class="bg-sage-600 text-white px-6 py-3 rounded-lg hover:bg-sage-700 btn-primary font-semibold whitespace-nowrap">
+                        Get Started
+                    </button>
+                </form>
+            </div>
+
+            <div class="mt-8 flex gap-4">
+                <a href="#how-it-works"
+                   class="border border-sage-600 text-sage-700 px-6 py-3 rounded-lg hover:bg-sage-100 transition">
+                    Learn More
+                </a>
+            </div>
+        </div>
+
+        <!-- SVG Illustration -->
+        <div class="flex justify-center">
+            <svg width="400" height="400" viewBox="0 0 600 500" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full max-w-md">
+                <!-- Background gradient -->
+                <defs>
+                    <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#6a8470;stop-opacity:0.1" />
+                        <stop offset="100%" style="stop-color:#536a58;stop-opacity:0.2" />
+                    </linearGradient>
+                    <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#869f8b;stop-opacity:0.3" />
+                        <stop offset="100%" style="stop-color:#6a8470;stop-opacity:0.2" />
+                    </linearGradient>
+                </defs>
+                
+                <!-- Goal target circles -->
+                <circle cx="150" cy="120" r="80" fill="url(#gradient1)" opacity="0.6"/>
+                <circle cx="150" cy="120" r="60" fill="#6a8470" opacity="0.3"/>
+                <circle cx="150" cy="120" r="40" fill="#536a58" opacity="0.4"/>
+                
+                <!-- Checkmark -->
+                <path d="M130 120 L145 135 L170 100" stroke="#f4f7f4" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+                
+                <!-- Progress bars -->
+                <rect x="300" y="150" width="200" height="12" rx="6" fill="#e7ede7"/>
+                <rect x="300" y="150" width="160" height="12" rx="6" fill="#6a8470"/>
+                
+                <rect x="300" y="180" width="200" height="12" rx="6" fill="#e7ede7"/>
+                <rect x="300" y="180" width="140" height="12" rx="6" fill="#869f8b"/>
+                
+                <rect x="300" y="210" width="200" height="12" rx="6" fill="#e7ede7"/>
+                <rect x="300" y="210" width="180" height="12" rx="6" fill="#536a58"/>
+                
+                <!-- AI Brain/Sparkle -->
+                <circle cx="450" cy="80" r="30" fill="url(#gradient2)"/>
+                <path d="M450 50 L450 70 M450 90 L450 110 M430 80 L450 80 M470 80 L490 80 M435 60 L450 50 L465 60 M435 100 L450 110 L465 100" stroke="#6a8470" stroke-width="3" stroke-linecap="round"/>
+                
+                <!-- Calendar/Calendar grid -->
+                <rect x="100" y="280" width="120" height="140" rx="8" fill="#f4f7f4" stroke="#cedbcd" stroke-width="2"/>
+                <rect x="110" y="300" width="100" height="20" fill="#6a8470" opacity="0.2"/>
+                <line x1="120" y1="340" x2="210" y2="340" stroke="#cedbcd" stroke-width="1"/>
+                <line x1="120" y1="370" x2="210" y2="370" stroke="#cedbcd" stroke-width="1"/>
+                <line x1="120" y1="400" x2="210" y2="400" stroke="#cedbcd" stroke-width="1"/>
+                <circle cx="140" cy="355" r="8" fill="#6a8470"/>
+                <circle cx="180" cy="385" r="8" fill="#869f8b"/>
+                
+                <!-- Trophy/Reward -->
+                <path d="M380 320 L420 320 L420 360 L400 360 L400 380 L380 380 Z" fill="#E8C547" opacity="0.8"/>
+                <circle cx="400" cy="300" r="15" fill="#E8C547"/>
+                <path d="M390 300 L410 300" stroke="#f4f7f4" stroke-width="2" stroke-linecap="round"/>
+                
+                <!-- Leaderboard -->
+                <rect x="450" y="280" width="120" height="140" rx="8" fill="#ffffff" stroke="#cedbcd" stroke-width="2"/>
+                <rect x="460" y="290" width="100" height="25" fill="#536a58" opacity="0.1"/>
+                <circle cx="475" cy="330" r="8" fill="#E8C547"/>
+                <circle cx="475" cy="360" r="8" fill="#cedbcd"/>
+                <circle cx="475" cy="390" r="8" fill="#abbfb1"/>
+                <line x1="490" y1="330" x2="550" y2="330" stroke="#6a8470" stroke-width="2"/>
+                <line x1="490" y1="360" x2="520" y2="360" stroke="#869f8b" stroke-width="2"/>
+                <line x1="490" y1="390" x2="510" y2="390" stroke="#abbfb1" stroke-width="2"/>
+            </svg>
+        </div>
+    </section>
+
+    <!-- ================= WHY GOALS FAIL ================= -->
+    <section id="features" class="bg-white py-20 reveal">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <h2 class="text-3xl font-bold mb-12">Why Goals Fail</h2>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="p-6 rounded-xl bg-sage-50 card-hover">
+                    <h3 class="font-semibold text-xl mb-2">Lack of Motivation</h3>
+                    <p class="text-sage-700">
+                        It's hard to stay motivated when you're working alone.
+                    </p>
+                </div>
+
+                <div class="p-6 rounded-xl bg-sage-50 card-hover">
+                    <h3 class="font-semibold text-xl mb-2">No Accountability</h3>
+                    <p class="text-sage-700">
+                        No system to keep you consistent day after day.
+                    </p>
+                </div>
+
+                <div class="p-6 rounded-xl bg-sage-50 card-hover">
+                    <h3 class="font-semibold text-xl mb-2">No Rewards</h3>
+                    <p class="text-sage-700">
+                        Nothing tangible to celebrate your progress.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= HOW IT WORKS ================= -->
+    <section id="how-it-works" class="py-20 reveal">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <h2 class="text-3xl font-bold mb-4">How Goaly Works</h2>
+            <p class="text-sage-700 mb-12">Achieve your goals in 3 simple steps</p>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="p-6 rounded-xl border border-sage-200 card-hover">
+                    <span class="text-3xl font-bold text-sage-600">1</span>
+                    <h3 class="font-semibold text-xl mt-4">Set Your Goals</h3>
+                    <p class="text-sage-700 mt-2">
+                        Break yearly goals into monthly, weekly, and daily tasks.
+                    </p>
+                </div>
+
+                <div class="p-6 rounded-xl border border-sage-200 card-hover">
+                    <span class="text-3xl font-bold text-sage-600">2</span>
+                    <h3 class="font-semibold text-xl mt-4">Track Daily Progress</h3>
+                    <p class="text-sage-700 mt-2">
+                        Stay accountable with daily check-ins and evidence uploads.
+                    </p>
+                </div>
+
+                <div class="p-6 rounded-xl border border-sage-200 card-hover">
+                    <span class="text-3xl font-bold text-sage-600">3</span>
+                    <h3 class="font-semibold text-xl mt-4">Climb the Leaderboard</h3>
+                    <p class="text-sage-700 mt-2">
+                        Stay consistent, earn points, and win real rewards.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= CTA ================= -->
+    <section class="bg-sage-700 text-white py-20 reveal">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <h2 class="text-3xl font-bold mb-6">Ready to achieve your goals?</h2>
+            <p class="mb-8 text-sage-100">
+                Start building habits that last and compete with others who want more from 2026.
+            </p>
+
+            <form method="POST" class="max-w-md mx-auto">
+                {% csrf_token %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="mb-4 p-3 bg-sage-600 border border-sage-500 text-white rounded-lg text-sm">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <input type="email" 
+                           name="email" 
+                           placeholder="Enter your email" 
+                           class="flex-1 px-4 py-3 rounded-lg text-sage-900 focus:outline-none focus:ring-2 focus:ring-white"
+                           required>
+                    <button type="submit" 
+                            class="bg-white text-sage-700 px-8 py-3 rounded-lg font-semibold hover:bg-sage-100 btn-primary whitespace-nowrap">
+                        Get Started Now
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- ================= FOOTER ================= -->
+    <footer class="py-8 text-center text-sage-600">
+        <p class="footer-text">© 2026 Goaly. All rights reserved.</p>
+    </footer>
+
+    <!-- Custom JavaScript -->
+    {% load static %}
+    <script src="{% static 'goals/js/landing.js' %}"></script>
+</body>
+</html>
