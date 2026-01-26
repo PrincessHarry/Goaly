@@ -10,7 +10,7 @@ from .forms import UserRegistrationForm, UserLoginForm
 User = get_user_model()
 
 
-def _get_safe_next(request, default="landing"):
+def _get_safe_next(request, default="goals:dashboard"):
     """Get and validate 'next' redirect URL from GET or POST."""
     next_url = request.POST.get("next") or request.GET.get("next", default)
     if next_url == default or not next_url:
@@ -26,7 +26,7 @@ def _get_safe_next(request, default="landing"):
 def register_view(request):
     """Handle user registration."""
     if request.user.is_authenticated:
-        return redirect("landing")
+        return redirect("goals:dashboard")
 
     if request.method == "POST":
         form = UserRegistrationForm(request.POST)
@@ -50,7 +50,7 @@ def register_view(request):
 def login_view(request):
     """Handle user login. User model uses email as USERNAME_FIELD."""
     if request.user.is_authenticated:
-        return redirect("landing")
+        return redirect("goals:dashboard")
 
     if request.method == "POST":
         form = UserLoginForm(request.POST)
