@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Goaly</title>
+
+    <!-- Google Font for Logo -->
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tailwind Config for Sage Colors -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sage: {
+                            50: '#f4f7f4',
+                            100: '#e7ede7',
+                            200: '#cedbcd',
+                            300: '#abbfb1',
+                            400: '#869f8b',
+                            500: '#6a8470',
+                            600: '#536a58',
+                            700: '#445648',
+                            800: '#38463c',
+                            900: '#303b33',
+                            950: '#1a201c',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Custom CSS -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'goals/css/landing.css' %}">
+</head>
+<body class="bg-sage-50 flex items-center justify-center min-h-screen p-4">
+    <div class="max-w-md w-full">
+        <div class="text-center mb-8">
+            <div class="inline-flex w-16 h-16 bg-sage-600 rounded-2xl items-center justify-center text-white shadow-xl mb-4">
+                <span class="text-3xl font-black">G</span>
+            </div>
+            <h1 class="text-4xl font-black text-slate-900 tracking-tight">Welcome to Goaly</h1>
+            <p class="text-slate-500 mt-2 font-medium">Your AI-powered vision architect.</p>
+        </div>
+
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-xl border border-sage-100">
+            <div class="flex bg-slate-100 p-1 rounded-2xl mb-8">
+                <a href="{% url 'account:login' %}" 
+                   class="flex-1 py-2.5 rounded-xl text-sm font-bold transition-all text-slate-500 hover:text-slate-700 text-center">
+                    Log In
+                </a>
+                <a href="{% url 'account:register' %}" 
+                   class="flex-1 py-2.5 rounded-xl text-sm font-bold transition-all bg-white text-sage-600 shadow-sm text-center">
+                    Sign Up
+                </a>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="mb-4 p-3 rounded-xl text-sm {% if message.tags == 'error' %}bg-red-50 text-red-700 border border-red-200{% else %}bg-sage-50 text-sage-700 border border-sage-200{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="POST" class="space-y-4">
+                {% csrf_token %}
+                
+                <div>
+                    <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1 ml-1">
+                        Full Name
+                    </label>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.first_name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1 ml-1">
+                        Email Address
+                    </label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.email.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1 ml-1">
+                        Password
+                    </label>
+                    {{ form.password1 }}
+                    {% if form.password1.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.password1.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1 ml-1">
+                        Confirm Password
+                    </label>
+                    {{ form.password2 }}
+                    {% if form.password2.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.password2.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <button 
+                    type="submit"
+                    class="w-full bg-sage-600 text-white py-4 rounded-2xl font-black text-lg hover:bg-sage-700 transition-all shadow-lg shadow-sage-100 flex items-center justify-center gap-2 mt-4 btn-primary"
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    Create Account
+                </button>
+            </form>
+
+            <div class="mt-8 pt-6 border-t border-slate-100 space-y-4">
+                <p class="text-center text-sm text-slate-600">
+                    Already have an account? <a href="{% url 'account:login' %}" class="text-sage-600 hover:underline font-bold">Log in</a>
+                </p>
+                <a href="{% url 'landing' %}" class="w-full flex items-center justify-center gap-3 py-3 border border-slate-200 rounded-2xl hover:bg-slate-50 transition-all text-slate-600 font-bold text-sm">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

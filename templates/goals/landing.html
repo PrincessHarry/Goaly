@@ -57,11 +57,19 @@
 
         <!-- Auth Buttons -->
         <div class="flex items-center gap-4">
-            <a href="/login" class="text-sage-700 hover:underline">Login</a>
-            <a href="/register"
+            {% if user.is_authenticated %}
+            <a href="{% url 'landing' %}" class="text-sage-700 hover:underline">Dashboard</a>
+            <a href="{% url 'account:logout' %}"
+               class="bg-slate-200 text-slate-700 px-4 py-2 rounded-lg hover:bg-slate-300 transition">
+                Logout
+            </a>
+            {% else %}
+            <a href="{% url 'account:login' %}" class="text-sage-700 hover:underline">Login</a>
+            <a href="{% url 'account:register' %}"
                class="bg-sage-600 text-white px-4 py-2 rounded-lg hover:bg-sage-700 btn-primary">
                 Get Started
             </a>
+            {% endif %}
         </div>
     </nav>
 
@@ -79,27 +87,12 @@
                 and build productive habits that actually stick.
             </p>
 
-            <!-- Email Signup Form -->
+            <!-- Get Started Button -->
             <div class="mt-8">
-                <form method="POST" class="flex flex-col sm:flex-row gap-4">
-                    {% csrf_token %}
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="w-full mb-4 p-3 bg-sage-100 border border-sage-300 text-sage-700 rounded-lg text-sm">
-                                {{ message }}
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-                    <!-- <input type="email" 
-                           name="email" 
-                           placeholder="Enter your email" 
-                           class="flex-1 px-4 py-3 border border-sage-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sage-500 focus:border-transparent"
-                           required> -->
-                    <button type="submit" 
-                            class="bg-sage-600 text-white px-6 py-3 rounded-lg hover:bg-sage-700 btn-primary font-semibold whitespace-nowrap">
-                        Get Started
-                    </button>
-                </form>
+                <a href="{% url 'account:register' %}" 
+                   class="inline-block bg-sage-600 text-white px-6 py-3 rounded-lg hover:bg-sage-700 btn-primary font-semibold whitespace-nowrap">
+                    Get Started
+                </a>
             </div>
 
             <div class="mt-8 flex gap-4">
@@ -246,27 +239,12 @@
                 Start building habits that last and compete with others who want more from 2026.
             </p>
 
-            <form method="POST" class="max-w-md mx-auto">
-                {% csrf_token %}
-                {% if messages %}
-                    {% for message in messages %}
-                        <div class="mb-4 p-3 bg-sage-600 border border-sage-500 text-white rounded-lg text-sm">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                {% endif %}
-                <div class="flex flex-col sm:flex-row gap-4">
-                    <input type="email" 
-                           name="email" 
-                           placeholder="Enter your email" 
-                           class="flex-1 px-4 py-3 rounded-lg text-sage-900 focus:outline-none focus:ring-2 focus:ring-white"
-                           required>
-                    <button type="submit" 
-                            class="bg-white text-sage-700 px-8 py-3 rounded-lg font-semibold hover:bg-sage-100 btn-primary whitespace-nowrap">
-                        Get Started Now
-                    </button>
-                </div>
-            </form>
+            <div class="max-w-md mx-auto">
+                <a href="{% url 'account:register' %}" 
+                   class="inline-block bg-white text-sage-700 px-8 py-4 rounded-lg font-semibold hover:bg-sage-100 btn-primary whitespace-nowrap">
+                    Get Started Now
+                </a>
+            </div>
         </div>
     </section>
 

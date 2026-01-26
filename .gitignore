@@ -28,6 +28,8 @@ local_settings.py
 # =========================
 .DS_Store
 Thumbs.db
+nul
+*.stackdump
 
 # =========================
 # Frontend (future-proof)
