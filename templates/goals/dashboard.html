@@ -64,6 +64,9 @@
                 <button onclick="switchTab('board')" class="px-4 py-1.5 rounded-lg text-sm font-bold transition-all {% if active_tab == 'board' %}bg-white text-sage-600 shadow-sm{% else %}text-slate-500 hover:text-slate-700{% endif %}">
                     Vision Board
                 </button>
+                <button onclick="switchTab('coaching')" class="px-4 py-1.5 rounded-lg text-sm font-bold transition-all {% if active_tab == 'coaching' %}bg-white text-sage-600 shadow-sm{% else %}text-slate-500 hover:text-slate-700{% endif %}">
+                    Coach
+                </button>
                 <button onclick="switchTab('calendar')" class="px-4 py-1.5 rounded-lg text-sm font-bold transition-all {% if active_tab == 'calendar' %}bg-white text-sage-600 shadow-sm{% else %}text-slate-500 hover:text-slate-700{% endif %}">
                     Calendar
                 </button>
@@ -138,10 +141,19 @@
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {% for timeframe, timeframe_goals in goals_by_timeframe.items %}
-                        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm" data-timeframe="{{ timeframe }}">
                             <div class="flex items-center justify-between mb-4">
-                                <h3 class="text-lg font-black text-slate-900">{{ timeframe }}</h3>
-                                <span class="text-xs font-black text-slate-400 bg-slate-100 px-2 py-1 rounded-full">{{ timeframe_goals|length }}</span>
+                                <div class="flex flex-col">
+                                    <h3 class="text-lg font-black text-slate-900">{{ timeframe }}</h3>
+                                    <span class="text-xs font-black text-slate-400">{{ timeframe_goals|length }} ACTIVE</span>
+                                </div>
+                                {% if timeframe_goals %}
+                                <button type="button" onclick="bulkGenerateTips(this)" class="p-2 text-slate-400 hover:text-amber-500 rounded-xl border border-slate-200 hover:border-sage-300 transition-all shrink-0" title="Generate strategies for all">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                                    </svg>
+                                </button>
+                                {% endif %}
                             </div>
                             
                             <div class="space-y-3 mb-4 max-h-[500px] overflow-y-auto custom-scrollbar">
@@ -155,15 +167,51 @@
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                                                     </svg>
                                                 </button>
-                                                <span class="text-slate-800 font-bold">{{ goal.text }}</span>
+                                                <div class="flex flex-col">
+                                                    <span class="text-slate-800 font-bold">{{ goal.text }}</span>
+                                                    {% if goal.reminder_time %}
+                                                        <span class="mt-1 inline-flex items-center text-[10px] font-black text-sage-700 bg-sage-50 px-2 py-0.5 rounded-full uppercase tracking-widest">
+                                                            <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                                            </svg>
+                                                            {{ goal.reminder_time|date:"M j, H:i" }}
+                                                        </span>
+                                                    {% endif %}
+                                                </div>
                                             </div>
                                             <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <button onclick="openReminderModal({{ goal.id }}, '{{ goal.reminder_time|date:'c' }}')" class="text-slate-300 hover:text-sage-600 p-2" title="Set reminder">
+                                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                                    </svg>
+                                                </button>
+                                                <button onclick="toggleOrGenerateTips({{ goal.id }})" class="text-slate-300 hover:text-amber-500 p-2 tips-btn" data-goal-id="{{ goal.id }}" title="Strategy tips">
+                                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                                                    </svg>
+                                                </button>
+                                                <button onclick="openMarkFailedModal({{ goal.id }}, this.getAttribute('data-goal-text'))" data-goal-text="{{ goal.text }}" class="text-slate-300 hover:text-rose-500 p-2" title="Mark failed">
+                                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                                    </svg>
+                                                </button>
                                                 <button onclick="deleteGoal({{ goal.id }})" class="text-slate-300 hover:text-red-500 p-2">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                     </svg>
                                                 </button>
                                             </div>
+                                        </div>
+                                        <div id="tips-container-{{ goal.id }}" class="goal-tips-container mt-3 p-3 bg-sage-50 rounded-xl border border-sage-100 {% if not goal.tips %}hidden{% endif %}">
+                                            <p class="text-[10px] font-black uppercase text-sage-400 tracking-widest mb-2">Strategy Roadmap</p>
+                                            <ul class="space-y-2 tips-list">
+                                                {% for tip in goal.tips %}
+                                                    <li class="flex items-start gap-2 text-xs text-slate-600 font-medium">
+                                                        <span class="w-1.5 h-1.5 rounded-full bg-sage-300 mt-1.5 flex-shrink-0"></span>
+                                                        {{ tip }}
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
                                         </div>
                                     </div>
                                 {% empty %}
@@ -179,6 +227,73 @@
                             </button>
                         </div>
                     {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Coaching Tab -->
+        <div id="tab-coaching" class="tab-content {% if active_tab != 'coaching' %}hidden{% endif %}">
+            <div class="flex flex-col h-[calc(100vh-12rem)] bg-white rounded-[2.5rem] border border-slate-200 shadow-xl overflow-hidden animate-in fade-in slide-in-from-bottom duration-500">
+                <div class="bg-slate-900 p-6 text-white flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-sage-600 rounded-xl flex items-center justify-center">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-black tracking-tight leading-none">AI Performance Coach</h2>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Tactical Discipline Coaching</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-white/5">
+                            <svg class="w-3.5 h-3.5 text-sage-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-7.714 2.143L11 21l-2.286-6.857L1 12l7.714-2.143L11 3z" />
+                            </svg>
+                            Powered by Goaly Coach
+                        </div>
+                    </div>
+                </div>
+
+                <div id="coachMessages" class="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+                    <!-- Messages injected via JS -->
+                </div>
+
+                <div class="p-6 border-t border-slate-100 bg-slate-50/50">
+                    <div class="flex gap-2 mb-4 overflow-x-auto pb-2 scrollbar-hide">
+                        <button onclick="sendCoachMessage('How do I beat procrastination today?')" class="whitespace-nowrap bg-white border border-slate-200 px-4 py-1.5 rounded-full text-xs font-bold text-slate-600 hover:border-sage-400 hover:text-sage-600 transition-all shadow-sm">
+                            How do I beat procrastination today?
+                        </button>
+                        <button onclick="sendCoachMessage('Review my yearly strategy')" class="whitespace-nowrap bg-white border border-slate-200 px-4 py-1.5 rounded-full text-xs font-bold text-slate-600 hover:border-sage-400 hover:text-sage-600 transition-all shadow-sm">
+                            Review my yearly strategy
+                        </button>
+                        <button onclick="sendCoachMessage(\"I'm feeling overwhelmed\")" class="whitespace-nowrap bg-white border border-slate-200 px-4 py-1.5 rounded-full text-xs font-bold text-slate-600 hover:border-sage-400 hover:text-sage-600 transition-all shadow-sm">
+                            I'm feeling overwhelmed
+                        </button>
+                        <button onclick="sendCoachMessage('Boost my discipline score')" class="whitespace-nowrap bg-white border border-slate-200 px-4 py-1.5 rounded-full text-xs font-bold text-slate-600 hover:border-sage-400 hover:text-sage-600 transition-all shadow-sm">
+                            Boost my discipline score
+                        </button>
+                    </div>
+                    
+                    <form onsubmit="event.preventDefault(); sendCoachMessage(document.getElementById('coachInput').value)" class="relative">
+                        <input 
+                            type="text" 
+                            id="coachInput"
+                            placeholder="Ask your coach anything about your goals..."
+                            class="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-6 pr-16 text-sm font-medium focus:outline-none focus:ring-4 focus:ring-sage-500/10 focus:border-sage-500 transition-all shadow-lg"
+                        />
+                        <button 
+                            type="submit"
+                            id="coachSendBtn"
+                            class="absolute right-2 top-2 w-12 h-12 bg-slate-900 text-white rounded-xl flex items-center justify-center hover:bg-slate-800 disabled:opacity-30 transition-all"
+                        >
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a2 2 0 00-1.96 1.414l-.477 2.387a2 2 0 00.547 1.022l1.585 1.585a2 2 0 002.828 0l1.585-1.585a2 2 0 00.547-1.022l.477-2.387a2 2 0 00-1.414-1.96l-2.387-.477a2 2 0 01-1.022-.547l-1.585-1.585a2 2 0 00-2.828 0l-1.585 1.585a2 2 0 00-.547 1.022l-.477 2.387a2 2 0 001.414 1.96l2.387.477a2 2 0 011.022.547l1.585 1.585a2 2 0 002.828 0l1.585-1.585z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v2m0 16v2M2 12h2m16 0h2" />
+                            </svg>
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -233,23 +348,402 @@
             </div>
         </div>
 
-        <!-- Other tabs placeholder -->
+        <!-- Calendar Tab -->
         <div id="tab-calendar" class="tab-content {% if active_tab != 'calendar' %}hidden{% endif %}">
-            <div class="text-center py-12 text-slate-400">
-                <p>Calendar view coming soon...</p>
+            <div class="bg-white rounded-[2.5rem] border border-slate-200 shadow-xl overflow-hidden animate-in fade-in slide-in-from-bottom duration-500">
+                <div id="calendarHeader" class="bg-slate-900 p-6 flex items-center justify-between text-white">
+                    <h2 id="calendarTitle" class="text-2xl font-black tracking-tight"></h2>
+                    <div class="flex items-center gap-2">
+                        <button onclick="changeMonth(-1)" class="p-2 hover:bg-white/10 rounded-xl transition-colors">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+                        <button onclick="changeMonth(1)" class="p-2 hover:bg-white/10 rounded-xl transition-colors">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-7 gap-px bg-slate-100" id="calendarGrid">
+                    <!-- Weekday headers -->
+                    <div class="bg-slate-50 p-4 text-center text-xs font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Sun</div>
+                    <div class="bg-slate-50 p-4 text-center text-xs font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Mon</div>
+                    <div class="bg-slate-50 p-4 text-center text-xs font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Tue</div>
+                    <div class="bg-slate-50 p-4 text-center text-xs font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Wed</div>
+                    <div class="bg-slate-50 p-4 text-center text-xs font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Thu</div>
+                    <div class="bg-slate-50 p-4 text-center text-xs font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Fri</div>
+                    <div class="bg-slate-50 p-4 text-center text-xs font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Sat</div>
+                    <!-- Days will be injected by JS -->
+                </div>
             </div>
         </div>
         <div id="tab-consistency" class="tab-content {% if active_tab != 'consistency' %}hidden{% endif %}">
-            <div class="text-center py-12 text-slate-400">
-                <p>Consistency view coming soon...</p>
+            <div class="space-y-8 animate-in fade-in slide-in-from-bottom duration-500">
+                <div class="flex items-center justify-end">
+                    <button onclick="openYearlyReport()" class="px-4 py-2 rounded-xl bg-slate-900 text-white text-sm font-bold hover:bg-slate-800 transition-all shadow-lg">
+                        View Yearly Report
+                    </button>
+                </div>
+                <!-- Top stats -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-lg text-center relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <svg class="w-16 h-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
+                            </svg>
+                        </div>
+                        <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Active Streak</p>
+                        <p class="text-6xl font-black text-orange-500 tracking-tighter">{{ user_stats.streak }}</p>
+                        <p class="text-sm font-bold text-slate-500 mt-2 uppercase tracking-tight">Days of Discipline</p>
+                    </div>
+
+                    <div class="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-lg text-center relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <svg class="w-16 h-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                        </div>
+                        <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Discipline Score</p>
+                        <p class="text-6xl font-black text-sage-600 tracking-tighter">{{ user_stats.discipline_score }}%</p>
+                        <div class="w-full bg-slate-100 h-2 rounded-full mt-4 overflow-hidden">
+                            <div 
+                              class="bg-sage-600 h-full rounded-full transition-all duration-1000" 
+                              style="width: {{ user_stats.discipline_score }}%">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-lg text-center relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <svg class="w-16 h-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                        </div>
+                        <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Growth Vector</p>
+                        <p class="text-6xl font-black text-emerald-500 tracking-tighter">+{{ user_stats.growth_rate }}%</p>
+                        <p class="text-sm font-bold text-slate-500 mt-2 uppercase tracking-tight">Monthly Expansion</p>
+                    </div>
+                </div>
+
+                <!-- Narrative block -->
+                <div class="bg-slate-900 rounded-[3rem] p-10 text-white shadow-2xl relative overflow-hidden">
+                    <svg class="absolute top-4 right-4 w-40 h-40 opacity-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-7.714 2.143L11 21l-2.286-6.857L1 12l7.714-2.143L11 3z" />
+                    </svg>
+                    <div class="relative z-10 max-w-2xl">
+                        <h3 class="text-4xl font-black tracking-tight mb-4">Architectural Consistency</h3>
+                        <p class="text-slate-400 text-lg leading-relaxed mb-8">
+                            The secret to extraordinary outcomes is not intensity, but the relentless application of discipline. Your tracking data continuously refines your goal architecture for real-world impact.
+                        </p>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-emerald-400">
+                                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-black uppercase tracking-widest">Total Mastered</p>
+                                    <p class="text-2xl font-black">{{ completed_goals|length }} Goals Completed</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-rose-400">
+                                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-black uppercase tracking-widest">Growth Opportunities</p>
+                                    <p class="text-2xl font-black">{{ failed_goals|length }} Strategic Setbacks</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+
         <div id="tab-leaderboard" class="tab-content {% if active_tab != 'leaderboard' %}hidden{% endif %}">
-            <div class="text-center py-12 text-slate-400">
-                <p>Leaderboard coming soon...</p>
+            <div class="space-y-6 animate-in fade-in slide-in-from-bottom duration-500">
+                <div class="bg-gradient-to-r from-amber-500 to-amber-600 rounded-3xl p-6 text-white shadow-xl relative overflow-hidden">
+                    <svg class="absolute right-4 bottom-4 w-32 h-32 opacity-20 rotate-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.703 2.703 0 00-3 0 2.704 2.704 0 01-3 0 2.703 2.703 0 00-3 0 2.704 2.704 0 01-1.5-.454M9 6v2m3-2v2m3-2v2M9 3h6a2 2 0 012 2v1H7V5a2 2 0 012-2zM9 21h6a2 2 0 002-2v-1H7v1a2 2 0 002 2zM7 10h10v7H7v-7z" />
+                    </svg>
+                    <div class="relative z-10">
+                        <h2 class="text-3xl font-black tracking-tight mb-2">Global Champions</h2>
+                        <p class="text-amber-50 font-medium">Top Architects are ranked by discipline and output.</p>
+                        <div class="mt-4 flex gap-4">
+                            <div class="bg-white/20 px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest flex items-center gap-1">
+                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-7.714 2.143L11 21l-2.286-6.857L1 12l7.714-2.143L11 3z" />
+                                </svg>
+                                Growth Rewards
+                            </div>
+                            <div class="bg-white/20 px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest flex items-center gap-1">
+                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
+                                </svg>
+                                Discipline Perks
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-[2.5rem] shadow-xl border border-slate-200 overflow-hidden">
+                    <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                        <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Architect Rankings</span>
+                        <div class="flex items-center gap-4 text-xs font-bold text-slate-500">
+                            <span class="flex items-center gap-1">
+                                <svg class="w-3 h-3 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
+                                </svg>
+                                Streak
+                            </span>
+                            <span class="flex items-center gap-1">
+                                <svg class="w-3 h-3 text-sage-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                </svg>
+                                Points
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="divide-y divide-slate-100">
+                        {% for entry in leaderboard_entries %}
+                            <div 
+                              class="flex items-center p-6 gap-4 transition-colors hover:bg-slate-50/50 {% if entry.id == user.id %}bg-sage-50/50{% endif %}">
+                                <div class="w-8 text-center font-black text-slate-300">
+                                    {{ forloop.counter }}
+                                </div>
+                                {% if entry.avatar %}
+                                    <img src="{{ entry.avatar.url }}" alt="{{ entry.name }}" class="w-12 h-12 rounded-2xl object-cover shadow-sm border border-slate-200">
+                                {% else %}
+                                    <div class="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-500 font-bold shadow-sm border border-slate-200">
+                                        {{ entry.name|first|upper }}
+                                    </div>
+                                {% endif %}
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-slate-900 flex items-center gap-2">
+                                        {{ entry.name }}
+                                        {% if forloop.first %}
+                                            <svg class="w-4 h-4 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.703 2.703 0 00-3 0 2.704 2.704 0 01-3 0 2.703 2.703 0 00-3 0 2.704 2.704 0 01-1.5-.454M9 6v2m3-2v2m3-2v2M9 3h6a2 2 0 012 2v1H7V5a2 2 0 012-2zM9 21h6a2 2 0 002-2v-1H7v1a2 2 0 002 2zM7 10h10v7H7v-7z" />
+                                            </svg>
+                                        {% endif %}
+                                    </h4>
+                                    <div class="flex items-center gap-3 mt-1">
+                                        <div class="bg-orange-50 text-orange-600 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest">
+                                            {{ entry.stats.streak }}D STREAK
+                                        </div>
+                                        <div class="bg-sage-50 text-sage-600 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest">
+                                            LVL {{ entry.stats.points|divisibleby:1000|yesno:"2,1" }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-xl font-black text-slate-900 leading-none">{{ entry.stats.points }}</p>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Architect Pts</p>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <div class="p-8 text-center text-slate-400">
+                                <p>No leaderboard data yet. Start completing goals to climb the ranks.</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
         </div>
     </main>
+
+    <!-- Goal Planner Modal (Vision Architect) -->
+    <div id="plannerModal" class="hidden fixed inset-0 z-[70] bg-slate-950/80 backdrop-blur-xl flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-2xl rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col border border-slate-200">
+            <div class="bg-slate-900 p-8 text-white relative">
+                <button onclick="closePlanner()" class="absolute top-6 right-6 text-slate-400 hover:text-white transition-colors">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+                <div class="flex items-center gap-3 mb-2">
+                    <svg class="w-8 h-8 text-sage-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a2 2 0 00-1.96 1.414l-.477 2.387a2 2 0 00.547 1.022l1.585 1.585a2 2 0 002.828 0l1.585-1.585a2 2 0 00.547-1.022l.477-2.387a2 2 0 00-1.414-1.96l-2.387-.477a2 2 0 01-1.022-.547l-1.585-1.585a2 2 0 00-2.828 0l-1.585 1.585a2 2 0 00-.547 1.022l-.477 2.387a2 2 0 001.414 1.96l2.387.477a2 2 0 011.022.547l1.585 1.585a2 2 0 002.828 0l1.585-1.585z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v2m0 16v2M2 12h2m16 0h2" />
+                    </svg>
+                    <h2 class="text-3xl font-black tracking-tight">Vision Architect</h2>
+                </div>
+                <p class="text-slate-400 font-medium">Describe your dreams for the year, and we’ll engineer the steps to get there.</p>
+            </div>
+
+            <div class="flex-1 p-8 overflow-y-auto custom-scrollbar">
+                <div id="plannerInputView" class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-500 uppercase tracking-widest mb-3">Your Year North Stars</label>
+                        <textarea 
+                          id="plannerVision"
+                          placeholder="e.g. Become a senior developer, run a half marathon, and learn to play jazz piano."
+                          class="w-full min-h-[160px] bg-slate-50 border border-slate-200 rounded-3xl p-6 text-slate-800 focus:outline-none focus:ring-4 focus:ring-sage-500/10 focus:border-sage-500 transition-all resize-none text-lg leading-relaxed"></textarea>
+                    </div>
+                    <button 
+                      onclick="generatePlan()"
+                      id="plannerGenerateBtn"
+                      class="w-full bg-sage-600 text-white py-5 rounded-3xl font-black text-lg hover:bg-sage-700 transition-all flex items-center justify-center gap-3 shadow-xl shadow-sage-200 disabled:opacity-50">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-7.714 2.143L11 21l-2.286-6.857L1 12l7.714-2.143L11 3z" />
+                        </svg>
+                        <span id="plannerGenerateLabel">Generate Action Plan</span>
+                    </button>
+                </div>
+
+                <div id="plannerPreviewView" class="hidden space-y-8">
+                    <div class="bg-sage-50 rounded-3xl p-6 border border-sage-100">
+                        <p class="text-sm font-bold text-sage-600 mb-4 flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-7.714 2.143L11 21l-2.286-6.857L1 12l7.714-2.143L11 3z" />
+                            </svg>
+                            Planner has built your roadmap:
+                        </p>
+                        <div id="plannerPreviewContent" class="space-y-6"></div>
+                    </div>
+
+                    <div class="flex gap-4">
+                        <button 
+                          onclick="plannerStartOver()"
+                          class="flex-1 py-4 text-slate-500 font-bold hover:bg-slate-50 rounded-2xl transition-colors">
+                            Start Over
+                        </button>
+                        <button 
+                          onclick="applyPlanToBoard()"
+                          class="flex-[2] bg-slate-900 text-white py-4 rounded-2xl font-bold hover:bg-slate-800 transition-all shadow-lg">
+                            Apply to Vision Board
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Yearly Report Modal -->
+    <div id="yearlyReportModal" class="hidden fixed inset-0 z-[60] bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-4xl max-h-[90vh] rounded-3xl overflow-hidden shadow-2xl flex flex-col">
+            <div class="bg-gradient-to-r from-sage-600 to-sage-800 p-8 text-white relative">
+                <button onclick="closeYearlyReport()" class="absolute top-6 right-6 text-white/50 hover:text-white transition-colors">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+                <div class="flex items-center gap-4 mb-2">
+                    <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <h2 class="text-3xl font-black tracking-tight">Annual Progress Review</h2>
+                </div>
+                <p class="text-sage-50 font-medium">Your journey from your first goal to today.</p>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
+                <div id="yearlyReportLoading" class="flex flex-col items-center justify-center py-20 space-y-4">
+                    <div class="w-12 h-12 border-4 border-sage-600 border-t-transparent rounded-full animate-spin"></div>
+                    <p class="text-slate-500 font-medium animate-pulse">Goaly is synthesizing your achievements...</p>
+                </div>
+                <div id="yearlyReportContent" class="hidden space-y-12">
+                    <div class="prose prose-slate max-w-none">
+                        <div class="bg-sage-50/50 p-8 rounded-3xl border border-sage-100 relative">
+                            <svg class="absolute -top-4 -right-4 w-12 h-12 text-sage-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-7.714 2.143L11 21l-2.286-6.857L1 12l7.714-2.143L11 3z" />
+                            </svg>
+                            <div id="yearlyNarrative" class="whitespace-pre-line text-slate-700 leading-relaxed font-serif text-lg italic"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 border-t border-slate-100 bg-slate-50 flex justify-end">
+                <button onclick="closeYearlyReport()" class="bg-slate-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-slate-800 transition-all shadow-lg">
+                    Continue Growing
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reminder Modal -->
+    <div id="reminderModal" class="hidden fixed inset-0 z-[65] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl border border-slate-200 p-6">
+            <h3 class="text-lg font-black text-slate-900 mb-4">Set Reminder</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Reminder Time</label>
+                    <input 
+                        type="datetime-local" 
+                        id="reminderInput"
+                        class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-2.5 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-sage-500/20 focus:border-sage-500">
+                    <p class="mt-1 text-[10px] text-slate-400 font-medium">You’ll get a gentle nudge in the app at this time.</p>
+                </div>
+                <div class="flex gap-2 pt-2">
+                    <button onclick="clearReminder()" class="flex-1 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-500 hover:bg-slate-50">Clear</button>
+                    <button onclick="closeReminderModal()" class="flex-1 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-500 hover:bg-slate-50">Cancel</button>
+                    <button onclick="saveReminder()" class="flex-1 py-2 rounded-xl bg-sage-600 text-xs font-bold text-white hover:bg-sage-700">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mark Failed Modal -->
+    <div id="markFailedModal" class="hidden fixed inset-0 z-[65] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
+            <div class="bg-rose-500/10 border-b border-rose-100 p-4">
+                <h3 class="text-lg font-black text-slate-900">Mark as failed</h3>
+                <p id="markFailedGoalText" class="text-sm text-slate-600 mt-1 truncate"></p>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Lesson learned (optional)</label>
+                    <textarea id="markFailedLesson" rows="3" placeholder="e.g. Timing wasn’t right. I’ll schedule it next week." class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-2.5 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-sage-500/20 focus:border-sage-500 resize-none"></textarea>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="closeMarkFailedModal()" class="flex-1 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-500 hover:bg-slate-50">Cancel</button>
+                    <button onclick="confirmMarkFailed()" class="flex-1 py-2.5 rounded-xl bg-rose-600 text-sm font-bold text-white hover:bg-rose-700">Mark failed</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alarm Overlay -->
+    <div id="alarmOverlay" class="hidden fixed bottom-6 right-6 z-[100] w-full max-w-sm animate-in slide-in-from-right duration-500">
+        <div class="bg-white border-2 border-sage-500 rounded-3xl shadow-2xl p-6 relative overflow-hidden ring-4 ring-sage-500/10">
+            <div class="absolute top-0 left-0 w-2 h-full bg-sage-500"></div>
+            <div class="flex items-start gap-4">
+                <div class="w-12 h-12 bg-sage-100 text-sage-600 rounded-2xl flex items-center justify-center animate-bounce">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <p class="text-xs font-black text-sage-600 uppercase tracking-widest mb-1">Time to Act!</p>
+                    <h3 id="alarmGoalText" class="text-lg font-black text-slate-900 leading-tight mb-4"></h3>
+                    <div class="flex gap-2">
+                        <button onclick="alarmComplete()" class="flex-1 bg-sage-600 text-white py-2 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-sage-700 transition-colors">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            Done
+                        </button>
+                        <button onclick="alarmLater()" class="flex-1 bg-slate-100 text-slate-600 py-2 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-slate-200 transition-colors">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            Later
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Add Goal Modal -->
     <div id="addGoalModal" class="hidden fixed inset-0 z-[70] bg-slate-950/80 backdrop-blur-xl flex items-center justify-center p-4">
@@ -267,7 +761,15 @@
                     <input type="hidden" id="goalTimeframe" name="timeframe" value="Daily">
                     <div class="mb-4">
                         <label class="block text-sm font-bold text-slate-500 uppercase tracking-widest mb-2">Goal Text</label>
-                        <input type="text" id="goalText" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3 px-4 focus:outline-none focus:ring-2 focus:ring-sage-500/20 focus:border-sage-500" placeholder="Enter your goal...">
+                        <div class="flex gap-2">
+                            <input type="text" id="goalText" required class="flex-1 bg-slate-50 border border-slate-200 rounded-2xl py-3 px-4 focus:outline-none focus:ring-2 focus:ring-sage-500/20 focus:border-sage-500" placeholder="Enter your goal...">
+                            <button type="button" onclick="refineGoalInput()" id="refineGoalBtn" class="p-2.5 bg-slate-100 hover:bg-sage-100 text-slate-500 hover:text-sage-600 rounded-2xl transition-colors shrink-0" title="Get suggestions">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-7.714 2.143L11 21l-2.286-6.857L1 12l7.714-2.143L11 3z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div id="refineSuggestions" class="mt-2 flex flex-wrap gap-2 hidden"></div>
                     </div>
                     <button type="submit" class="w-full bg-sage-600 text-white py-4 rounded-2xl font-black text-lg hover:bg-sage-700 transition-all">
                         Add Goal
@@ -281,9 +783,15 @@
     <input type="file" id="evidenceInput" accept="image/*" capture="environment" class="hidden" onchange="handleEvidenceUpload(event)">
     
     {% load static %}
+    {{ goals_for_calendar|json_script:"calendar-goals-data" }}
+    {{ goals_for_alarms|json_script:"alarm-goals-data" }}
     <script>
         // Dashboard JavaScript
         let currentGoalId = null;
+        // Calendar state
+        let currentCalendarDate = new Date();
+        // Embed minimal goal data for calendar (scheduled_date, timeframe, status, text, id)
+        const calendarGoals = JSON.parse(document.getElementById('calendar-goals-data').textContent);
         
         function switchTab(tab) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
@@ -306,15 +814,447 @@
         function closeAddGoalModal() {
             document.getElementById('addGoalModal').classList.add('hidden');
             document.getElementById('goalText').value = '';
+            const su = document.getElementById('refineSuggestions');
+            if (su) { su.classList.add('hidden'); su.innerHTML = ''; }
+        }
+
+        async function bulkGenerateTips(btn) {
+            const column = btn.closest('[data-timeframe]');
+            if (!column) return;
+            const items = column.querySelectorAll('.goal-item[data-goal-id]');
+            const ids = Array.from(items).map(el => el.getAttribute('data-goal-id')).filter(Boolean);
+            if (ids.length === 0) return;
+            btn.disabled = true;
+            for (const goalId of ids) {
+                const container = document.getElementById('tips-container-' + goalId);
+                const list = container && container.querySelector('.tips-list');
+                if (!list || list.children.length > 0) continue;
+                try {
+                    const res = await fetch('/goals/api/goals/' + goalId + '/tips/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' }
+                    });
+                    const data = await res.json();
+                    if (res.ok && list && Array.isArray(data.tips)) {
+                        list.innerHTML = '';
+                        data.tips.forEach(t => {
+                            const li = document.createElement('li');
+                            li.className = 'flex items-start gap-2 text-xs text-slate-600 font-medium';
+                            const dot = document.createElement('span');
+                            dot.className = 'w-1.5 h-1.5 rounded-full bg-sage-300 mt-1.5 flex-shrink-0';
+                            li.appendChild(dot);
+                            li.appendChild(document.createTextNode(t));
+                            list.appendChild(li);
+                        });
+                        container.classList.remove('hidden');
+                    }
+                } catch (_) {}
+            }
+            btn.disabled = false;
+        }
+
+        async function toggleOrGenerateTips(goalId) {
+            const container = document.getElementById('tips-container-' + goalId);
+            if (!container) return;
+            const list = container.querySelector('.tips-list');
+            if (list && list.children.length > 0) {
+                container.classList.toggle('hidden');
+                return;
+            }
+            const btn = document.querySelector('.tips-btn[data-goal-id="' + goalId + '"]');
+            if (btn) btn.disabled = true;
+            try {
+                const res = await fetch('/goals/api/goals/' + goalId + '/tips/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' }
+                });
+                const data = await res.json();
+                if (!res.ok) { alert(data.error || 'Could not generate tips'); return; }
+                if (list && Array.isArray(data.tips)) {
+                    list.innerHTML = '';
+                    data.tips.forEach(t => {
+                        const li = document.createElement('li');
+                        li.className = 'flex items-start gap-2 text-xs text-slate-600 font-medium';
+                        const dot = document.createElement('span');
+                        dot.className = 'w-1.5 h-1.5 rounded-full bg-sage-300 mt-1.5 flex-shrink-0';
+                        li.appendChild(dot);
+                        li.appendChild(document.createTextNode(t));
+                        list.appendChild(li);
+                    });
+                    container.classList.remove('hidden');
+                }
+            } catch (e) { console.error(e); alert('Could not generate tips'); }
+            finally { if (btn) btn.disabled = false; }
+        }
+
+        async function refineGoalInput() {
+            const text = document.getElementById('goalText').value.trim();
+            const timeframe = document.getElementById('goalTimeframe').value;
+            if (!text) return;
+            const btn = document.getElementById('refineGoalBtn');
+            const container = document.getElementById('refineSuggestions');
+            if (!container) return;
+            if (btn) btn.disabled = true;
+            try {
+                const res = await fetch('{% url "goals:refine_goal" %}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+                    body: JSON.stringify({ text, timeframe })
+                });
+                const data = await res.json();
+                if (!res.ok) { alert(data.error || 'Refine failed'); return; }
+                container.innerHTML = '';
+                (data.suggestions || []).forEach(s => {
+                    const b = document.createElement('button');
+                    b.type = 'button';
+                    b.className = 'text-left text-xs font-bold text-slate-600 bg-sage-50 hover:bg-sage-100 border border-sage-200 px-3 py-2 rounded-xl transition-colors';
+                    b.textContent = s;
+                    b.onclick = () => { document.getElementById('goalText').value = s; };
+                    container.appendChild(b);
+                });
+                container.classList.remove('hidden');
+            } catch (e) { console.error(e); alert('Refine failed'); }
+            finally { if (btn) btn.disabled = false; }
         }
         
         function closeInsight() {
             document.getElementById('aiInsight').classList.add('hidden');
         }
         
+        // -------- Planner modal --------
+        let plannerPreviewPlan = null;
+
         function showPlanner() {
-            // TODO: Implement planner modal
-            alert('Goal planner coming soon!');
+            document.getElementById('plannerModal').classList.remove('hidden');
+            document.getElementById('plannerVision').focus();
+        }
+
+        function closePlanner() {
+            document.getElementById('plannerModal').classList.add('hidden');
+        }
+
+        function plannerStartOver() {
+            plannerPreviewPlan = null;
+            document.getElementById('plannerPreviewView').classList.add('hidden');
+            document.getElementById('plannerInputView').classList.remove('hidden');
+        }
+
+        async function generatePlan() {
+            const vision = document.getElementById('plannerVision').value.trim();
+            if (!vision) return;
+
+            const btn = document.getElementById('plannerGenerateBtn');
+            const label = document.getElementById('plannerGenerateLabel');
+            btn.disabled = true;
+            label.textContent = 'Architecting your year...';
+
+            try {
+                const res = await fetch('{% url "goals:generate_plan" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({ vision })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    alert(data.error || 'Failed to generate plan');
+                    return;
+                }
+                plannerPreviewPlan = data;
+                renderPlannerPreview(data);
+                document.getElementById('plannerInputView').classList.add('hidden');
+                document.getElementById('plannerPreviewView').classList.remove('hidden');
+            } catch (e) {
+                console.error(e);
+                alert('Error generating plan');
+            } finally {
+                btn.disabled = false;
+                label.textContent = 'Generate Action Plan';
+            }
+        }
+
+        function renderPlannerPreview(plan) {
+            const container = document.getElementById('plannerPreviewContent');
+            container.innerHTML = '';
+
+            const order = ['daily', 'weekly', 'monthly', 'yearly'];
+            order.forEach(key => {
+                const items = plan[key] || [];
+                const section = document.createElement('div');
+                const title = document.createElement('h4');
+                title.className = 'text-xs font-black text-slate-400 uppercase tracking-widest mb-2';
+                title.textContent = key;
+
+                const ul = document.createElement('ul');
+                ul.className = 'space-y-2';
+                items.forEach(item => {
+                    const li = document.createElement('li');
+                    li.className = 'text-slate-700 font-medium flex items-start gap-2';
+                    const dot = document.createElement('span');
+                    dot.className = 'w-1.5 h-1.5 rounded-full bg-sage-400 mt-2 flex-shrink-0';
+                    const txt = document.createElement('span');
+                    txt.textContent = item;
+                    li.appendChild(dot);
+                    li.appendChild(txt);
+                    ul.appendChild(li);
+                });
+
+                section.appendChild(title);
+                section.appendChild(ul);
+                container.appendChild(section);
+            });
+        }
+
+        async function applyPlanToBoard() {
+            if (!plannerPreviewPlan) return;
+
+            const mapping = {
+                daily: 'Daily',
+                weekly: 'Weekly',
+                monthly: 'Monthly',
+                yearly: 'Yearly',
+            };
+            const requests = [];
+
+            Object.entries(mapping).forEach(([k, timeframe]) => {
+                (plannerPreviewPlan[k] || []).forEach(text => {
+                    requests.push(fetch('{% url "goals:add_goal" %}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: JSON.stringify({ text, timeframe })
+                    }));
+                });
+            });
+
+            try {
+                await Promise.all(requests);
+                closePlanner();
+                location.reload();
+            } catch (e) {
+                console.error(e);
+                alert('Failed to apply plan');
+            }
+        }
+
+        // -------- Yearly report modal --------
+        async function openYearlyReport() {
+            document.getElementById('yearlyReportModal').classList.remove('hidden');
+            document.getElementById('yearlyReportLoading').classList.remove('hidden');
+            document.getElementById('yearlyReportContent').classList.add('hidden');
+            try {
+                const res = await fetch('{% url "goals:yearly_report" %}');
+                const data = await res.json();
+                document.getElementById('yearlyNarrative').textContent = data.narrative || '';
+                document.getElementById('yearlyReportLoading').classList.add('hidden');
+                document.getElementById('yearlyReportContent').classList.remove('hidden');
+            } catch (e) {
+                console.error(e);
+                alert('Failed to load yearly report');
+                closeYearlyReport();
+            }
+        }
+
+        function closeYearlyReport() {
+            document.getElementById('yearlyReportModal').classList.add('hidden');
+        }
+
+        // -------- Reminder editor (per-goal) --------
+        let reminderGoalId = null;
+
+        function isoToLocalInputValue(iso) {
+            if (!iso) return '';
+            const d = new Date(iso);
+            const pad = (n) => String(n).padStart(2, '0');
+            const year = d.getFullYear();
+            const month = pad(d.getMonth() + 1);
+            const day = pad(d.getDate());
+            const hours = pad(d.getHours());
+            const minutes = pad(d.getMinutes());
+            return `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+
+        function openReminderModal(goalId, currentReminderIso) {
+            reminderGoalId = goalId;
+            const input = document.getElementById('reminderInput');
+            input.value = currentReminderIso ? isoToLocalInputValue(currentReminderIso) : '';
+            document.getElementById('reminderModal').classList.remove('hidden');
+        }
+
+        function closeReminderModal() {
+            reminderGoalId = null;
+            document.getElementById('reminderModal').classList.add('hidden');
+        }
+
+        async function saveReminder() {
+            if (!reminderGoalId) return;
+            const input = document.getElementById('reminderInput');
+            if (!input.value) {
+                // If empty, behave like clear
+                return clearReminder();
+            }
+            const iso = new Date(input.value).toISOString();
+            try {
+                const res = await fetch(`/goals/api/goals/${reminderGoalId}/reminder/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({ reminder_time: iso })
+                });
+                if (!res.ok) {
+                    const data = await res.json().catch(() => ({}));
+                    alert(data.error || 'Failed to save reminder');
+                    return;
+                }
+                closeReminderModal();
+                location.reload();
+            } catch (e) {
+                console.error(e);
+                alert('Failed to save reminder');
+            }
+        }
+
+        let markFailedGoalId = null;
+
+        function openMarkFailedModal(goalId, goalText) {
+            markFailedGoalId = goalId;
+            const el = document.getElementById('markFailedGoalText');
+            if (el) el.textContent = goalText || '';
+            document.getElementById('markFailedLesson').value = '';
+            document.getElementById('markFailedModal').classList.remove('hidden');
+        }
+
+        function closeMarkFailedModal() {
+            markFailedGoalId = null;
+            document.getElementById('markFailedModal').classList.add('hidden');
+        }
+
+        async function confirmMarkFailed() {
+            if (!markFailedGoalId) return;
+            const lesson = document.getElementById('markFailedLesson').value.trim() || 'Timing not right.';
+            try {
+                const res = await fetch(`/goals/api/goals/${markFailedGoalId}/fail/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({ lesson })
+                });
+                if (res.ok) {
+                    closeMarkFailedModal();
+                    location.reload();
+                } else {
+                    const data = await res.json().catch(() => ({}));
+                    alert(data.error || 'Could not mark goal as failed');
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Could not mark goal as failed');
+            }
+        }
+
+        async function clearReminder() {
+            if (!reminderGoalId) {
+                closeReminderModal();
+                return;
+            }
+            try {
+                const res = await fetch(`/goals/api/goals/${reminderGoalId}/reminder/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({ reminder_time: null })
+                });
+                if (!res.ok) {
+                    const data = await res.json().catch(() => ({}));
+                    alert(data.error || 'Failed to clear reminder');
+                    return;
+                }
+                closeReminderModal();
+                location.reload();
+            } catch (e) {
+                console.error(e);
+                alert('Failed to clear reminder');
+            }
+        }
+
+        // -------- Alarm overlay (reminders) --------
+        const alarmGoals = JSON.parse(document.getElementById('alarm-goals-data').textContent);
+        let currentAlarmGoalId = null;
+        const dismissedAlarms = new Set(); // session-only
+
+        function showAlarm(goal) {
+            currentAlarmGoalId = goal.id;
+            document.getElementById('alarmGoalText').textContent = goal.text;
+            document.getElementById('alarmOverlay').classList.remove('hidden');
+        }
+
+        function hideAlarm() {
+            currentAlarmGoalId = null;
+            document.getElementById('alarmOverlay').classList.add('hidden');
+        }
+
+        async function alarmComplete() {
+            if (!currentAlarmGoalId) return;
+            try {
+                const res = await fetch(`/goals/api/goals/${currentAlarmGoalId}/toggle/`, {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+                });
+                if (res.ok) {
+                    location.reload();
+                } else {
+                    alert('Could not complete goal');
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Could not complete goal');
+            } finally {
+                hideAlarm();
+            }
+        }
+
+        async function alarmLater() {
+            if (!currentAlarmGoalId) return;
+            try {
+                const res = await fetch(`/goals/api/goals/${currentAlarmGoalId}/alarm/later/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({ minutes: 10 })
+                });
+                if (!res.ok) {
+                    alert('Could not snooze');
+                }
+                dismissedAlarms.add(currentAlarmGoalId);
+            } catch (e) {
+                console.error(e);
+            } finally {
+                hideAlarm();
+            }
+        }
+
+        function checkAlarms() {
+            const now = new Date();
+            const due = alarmGoals
+                .filter(g => g.status === 'pending' && g.reminder_time)
+                .map(g => ({ ...g, reminder_dt: new Date(g.reminder_time) }))
+                .filter(g => g.reminder_dt <= now && !dismissedAlarms.has(g.id));
+
+            if (due.length > 0 && document.getElementById('alarmOverlay').classList.contains('hidden')) {
+                showAlarm(due[0]);
+            }
         }
         
         async function addGoal(e) {
@@ -402,12 +1342,291 @@
             }
         }
         
+        // -------- Calendar Rendering (from CalendarView component logic) --------
+        function daysInMonth(year, month) {
+            return new Date(year, month + 1, 0).getDate();
+        }
+
+        function firstDayOfMonth(year, month) {
+            return new Date(year, month, 1).getDay();
+        }
+
+        function formatDate(year, month, day) {
+            const m = String(month + 1).padStart(2, '0');
+            const d = String(day).padStart(2, '0');
+            return `${year}-${m}-${d}`;
+        }
+
+        function getGoalsForDay(year, month, day) {
+            const dateStr = formatDate(year, month, day);
+            const targetDate = new Date(year, month, day).toDateString();
+            return calendarGoals.filter(g =>
+                g.scheduled_date === dateStr ||
+                (g.timeframe === 'Daily' && new Date(g.created_at).toDateString() === targetDate)
+            );
+        }
+
+        async function handleDayClick(year, month, day) {
+            const monthName = currentCalendarDate.toLocaleString('default', { month: 'long' });
+            const text = prompt(`New goal for ${monthName} ${day}, ${year}:`);
+            if (!text || !text.trim()) return;
+
+            const scheduled_date = formatDate(year, month, day);
+            try {
+                const response = await fetch('{% url "goals:add_goal" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({ text: text.trim(), timeframe: 'Daily', scheduled_date })
+                });
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert('Failed to add goal for this date');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Error adding goal for this date');
+            }
+        }
+
+        function renderCalendar() {
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+
+            const monthName = currentCalendarDate.toLocaleString('default', { month: 'long' });
+            document.getElementById('calendarTitle').textContent = `${monthName} ${year}`;
+
+            const numDays = daysInMonth(year, month);
+            const startDay = firstDayOfMonth(year, month);
+
+            const grid = document.getElementById('calendarGrid');
+            // Remove any existing day cells (keep first 7 weekday header cells)
+            while (grid.children.length > 7) {
+                grid.removeChild(grid.lastChild);
+            }
+
+            const today = new Date();
+
+            // Padding for start day
+            for (let i = 0; i < startDay; i++) {
+                const pad = document.createElement('div');
+                pad.className = 'min-h-[120px] bg-white p-2';
+                grid.appendChild(pad);
+            }
+
+            for (let day = 1; day <= numDays; day++) {
+                const dayCell = document.createElement('div');
+                dayCell.className = 'min-h-[120px] bg-white p-2 group transition-colors hover:bg-sage-50/30 cursor-pointer';
+                dayCell.onclick = () => handleDayClick(year, month, day);
+
+                const isToday = today.getDate() === day &&
+                    today.getMonth() === month &&
+                    today.getFullYear() === year;
+
+                const header = document.createElement('div');
+                header.className = 'flex justify-between items-start mb-1';
+
+                const daySpan = document.createElement('span');
+                daySpan.textContent = day;
+                daySpan.className = isToday
+                    ? 'text-sm font-bold bg-sage-600 text-white w-7 h-7 flex items-center justify-center rounded-full'
+                    : 'text-sm font-bold text-slate-400';
+
+                const plusIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                plusIcon.setAttribute('class', 'w-4 h-4 text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity');
+                plusIcon.setAttribute('fill', 'none');
+                plusIcon.setAttribute('viewBox', '0 0 24 24');
+                plusIcon.setAttribute('stroke', 'currentColor');
+                const plusPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                plusPath.setAttribute('stroke-linecap', 'round');
+                plusPath.setAttribute('stroke-linejoin', 'round');
+                plusPath.setAttribute('stroke-width', '2');
+                plusPath.setAttribute('d', 'M12 4v16m8-8H4');
+                plusIcon.appendChild(plusPath);
+
+                header.appendChild(daySpan);
+                header.appendChild(plusIcon);
+
+                const goalsContainer = document.createElement('div');
+                goalsContainer.className = 'space-y-1';
+
+                const goalsForDay = getGoalsForDay(year, month, day);
+                goalsForDay.slice(0, 3).forEach(g => {
+                    const item = document.createElement('div');
+                    const baseClasses = 'text-[10px] px-1.5 py-0.5 rounded font-bold truncate ';
+                    if (g.status === 'completed') {
+                        item.className = baseClasses + 'bg-emerald-100 text-emerald-700';
+                    } else {
+                        item.className = baseClasses + 'bg-sage-100 text-sage-700';
+                    }
+                    item.textContent = g.text;
+                    goalsContainer.appendChild(item);
+                });
+                if (goalsForDay.length > 3) {
+                    const more = document.createElement('div');
+                    more.className = 'text-[9px] text-slate-400 font-bold pl-1';
+                    more.textContent = `+ ${goalsForDay.length - 3} more`;
+                    goalsContainer.appendChild(more);
+                }
+
+                dayCell.appendChild(header);
+                dayCell.appendChild(goalsContainer);
+                grid.appendChild(dayCell);
+            }
+        }
+
+        function changeMonth(delta) {
+            currentCalendarDate = new Date(
+                currentCalendarDate.getFullYear(),
+                currentCalendarDate.getMonth() + delta,
+                1
+            );
+            renderCalendar();
+        }
+
         // Close modals on outside click
         document.getElementById('addGoalModal')?.addEventListener('click', function(e) {
             if (e.target === this) {
                 closeAddGoalModal();
             }
         });
+
+        // Initial calendar render if calendar tab is active on load
+        if (document.getElementById('tab-calendar') && !document.getElementById('tab-calendar').classList.contains('hidden')) {
+            renderCalendar();
+        }
+
+        // Also re-render when switching to calendar tab
+        (function patchSwitchTabForCalendar() {
+            const originalSwitchTab = window.switchTab;
+            window.switchTab = function (tab) {
+                originalSwitchTab(tab);
+                if (tab === 'calendar') {
+                    renderCalendar();
+                }
+            }
+        })();
+
+        // Start reminder alarm polling
+        checkAlarms();
+        setInterval(checkAlarms, 30000);
+
+        // -------- Coaching (chat) --------
+        const coachMessagesEl = document.getElementById('coachMessages');
+        let coachIsTyping = false;
+
+        function coachAppendMessage(role, text) {
+            if (!coachMessagesEl) return;
+
+            const row = document.createElement('div');
+            row.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'}`;
+
+            const bubble = document.createElement('div');
+            bubble.className = `max-w-[80%] rounded-3xl p-5 shadow-sm ${
+                role === 'user'
+                    ? 'bg-sage-600 text-white rounded-br-none'
+                    : 'bg-slate-50 border border-slate-100 text-slate-800 rounded-bl-none'
+            }`;
+
+            const inner = document.createElement('div');
+            inner.className = 'prose prose-sm prose-slate max-w-none whitespace-pre-line leading-relaxed font-medium';
+            inner.textContent = text;
+
+            bubble.appendChild(inner);
+            row.appendChild(bubble);
+            coachMessagesEl.appendChild(row);
+            coachMessagesEl.scrollTop = coachMessagesEl.scrollHeight;
+        }
+
+        function coachSetTyping(isTyping) {
+            coachIsTyping = isTyping;
+            const btn = document.getElementById('coachSendBtn');
+            if (btn) btn.disabled = isTyping;
+
+            // Remove existing typing indicator
+            const existing = document.getElementById('coachTyping');
+            if (existing) existing.remove();
+
+            if (!isTyping || !coachMessagesEl) return;
+
+            const row = document.createElement('div');
+            row.id = 'coachTyping';
+            row.className = 'flex justify-start';
+            row.innerHTML = `
+                <div class="bg-slate-50 border border-slate-100 rounded-3xl rounded-bl-none p-5 flex items-center gap-2">
+                    <div class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style="animation-delay: 0ms"></div>
+                    <div class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style="animation-delay: 150ms"></div>
+                    <div class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style="animation-delay: 300ms"></div>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-2">Analysing Vision...</span>
+                </div>
+            `;
+            coachMessagesEl.appendChild(row);
+            coachMessagesEl.scrollTop = coachMessagesEl.scrollHeight;
+        }
+
+        async function sendCoachMessage(text) {
+            const input = document.getElementById('coachInput');
+            const msg = (text || '').trim();
+            if (!msg || coachIsTyping) return;
+
+            coachAppendMessage('user', msg);
+            if (input) input.value = '';
+            coachSetTyping(true);
+
+            try {
+                const res = await fetch('{% url "goals:coach_chat" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({ message: msg })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    coachAppendMessage('model', data.error || 'Connectivity lost to the coaching grid. Try again.');
+                } else {
+                    coachAppendMessage('model', data.reply || "I'm processing that. Can you rephrase?");
+                }
+            } catch (e) {
+                console.error(e);
+                coachAppendMessage('model', 'Connectivity lost to the coaching grid. Try again.');
+            } finally {
+                coachSetTyping(false);
+            }
+        }
+
+        function coachInit() {
+            if (!coachMessagesEl) return;
+            // Only seed once
+            if (coachMessagesEl.dataset.seeded === 'true') return;
+            coachMessagesEl.dataset.seeded = 'true';
+
+            const name = '{{ user.first_name|default:user.username }}';
+            coachAppendMessage(
+                'model',
+                `Hello ${name}. I’ve reviewed your current roadmap. You’re on a ${'{{ user_stats.streak }}'}-day streak with ${'{{ user_stats.total_goals_completed }}'} goals completed. How can I help you sharpen your discipline today?`
+            );
+        }
+
+        // Seed coach messages if tab is visible on load
+        if (document.getElementById('tab-coaching') && !document.getElementById('tab-coaching').classList.contains('hidden')) {
+            coachInit();
+        }
+
+        // Patch switchTab to init coach
+        (function patchSwitchTabForCoach() {
+            const originalSwitchTab = window.switchTab;
+            window.switchTab = function (tab) {
+                originalSwitchTab(tab);
+                if (tab === 'coaching') {
+                    coachInit();
+                }
+            }
+        })();
     </script>
 </body>
 </html>

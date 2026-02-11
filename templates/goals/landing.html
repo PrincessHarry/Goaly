@@ -43,136 +43,181 @@
 <body class="bg-sage-50 text-sage-900">
 
     <!-- ================= NAVBAR ================= -->
-    <nav class="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto">
-        <!-- Logo -->
-        <div class="text-2xl text-sage-700 goaly-logo">
-            Goaly
-        </div>
+    <header class="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-sm border-b border-sage-200/60 shadow-sm">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-14 sm:h-16">
+                <!-- Logo -->
+                <a href="#" class="text-xl sm:text-2xl text-sage-700 goaly-logo flex-shrink-0">
+                    <div class="flex items-center gap-2">
+                        <div class="w-10 h-10 bg-sage-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                            <span class="text-xl font-bold tracking-tighter">G</span>
+                        </div>
+                        <h1 class="text-2xl font-black text-slate-900 tracking-tight">goaly</h1>
+                    </div>
+                </a>
 
-        <!-- Nav Links -->
-        <div class="hidden md:flex items-center gap-6">
-            <a href="#how-it-works" class="hover:text-sage-600 transition">How it works</a>
-            <a href="#features" class="hover:text-sage-600 transition">Features</a>
-        </div>
+                <!-- Desktop Nav Links + Auth -->
+                <div class="hidden md:flex items-center gap-8">
+                    <div class="flex items-center gap-6">
+                        <a href="#how-it-works" class="text-sage-700 hover:text-sage-600 transition font-medium">How it works</a>
+                        <a href="#features" class="text-sage-700 hover:text-sage-600 transition font-medium">Features</a>
+                    </div>
+                    <div class="flex items-center gap-3 sm:gap-4 pl-4 border-l border-sage-200">
+                        {% if user.is_authenticated %}
+                        <a href="{% url 'goals:dashboard' %}" class="text-sage-700 hover:text-sage-600 transition font-medium">Dashboard</a>
+                        <a href="{% url 'account:logout' %}"
+                           class="bg-slate-200 text-slate-700 px-4 py-2 rounded-lg hover:bg-slate-300 transition font-medium">
+                            Logout
+                        </a>
+                        {% else %}
+                        <a href="{% url 'account:login' %}" class="text-sage-700 hover:text-sage-600 transition font-medium">Login</a>
+                        <a href="{% url 'account:register' %}"
+                           class="bg-sage-600 text-white px-4 py-2 rounded-lg hover:bg-sage-700 btn-primary font-medium">
+                            Get Started
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
 
-        <!-- Auth Buttons -->
-        <div class="flex items-center gap-4">
-            {% if user.is_authenticated %}
-            <a href="{% url 'landing' %}" class="text-sage-700 hover:underline">Dashboard</a>
-            <a href="{% url 'account:logout' %}"
-               class="bg-slate-200 text-slate-700 px-4 py-2 rounded-lg hover:bg-slate-300 transition">
-                Logout
-            </a>
-            {% else %}
-            <a href="{% url 'account:login' %}" class="text-sage-700 hover:underline">Login</a>
-            <a href="{% url 'account:register' %}"
-               class="bg-sage-600 text-white px-4 py-2 rounded-lg hover:bg-sage-700 btn-primary">
-                Get Started
-            </a>
-            {% endif %}
-        </div>
-    </nav>
+                <!-- Mobile Menu Button -->
+                <button id="menu-btn" type="button" class="md:hidden inline-flex items-center justify-center p-2 rounded-lg text-sage-700 hover:bg-sage-100 focus:outline-none focus:ring-2 focus:ring-sage-500 transition" aria-label="Toggle menu" aria-expanded="false">
+                    <svg class="h-6 w-6 menu-icon-open" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                    <svg class="h-6 w-6 menu-icon-close hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Mobile Menu Dropdown -->
+            <div id="mobile-menu" class="hidden md:hidden pb-4 pt-2 border-t border-sage-100">
+                <div class="flex flex-col gap-1 pt-2">
+                    <a href="#how-it-works" class="nav-mobile-link block px-3 py-2.5 rounded-lg text-sage-700 hover:bg-sage-100 transition font-medium">How it works</a>
+                    <a href="#features" class="nav-mobile-link block px-3 py-2.5 rounded-lg text-sage-700 hover:bg-sage-100 transition font-medium">Features</a>
+                    <div class="border-t border-sage-100 mt-2 pt-2 flex flex-col gap-1">
+                        {% if user.is_authenticated %}
+                        <a href="{% url 'goals:dashboard' %}" class="nav-mobile-link block px-3 py-2.5 rounded-lg text-sage-700 hover:bg-sage-100 transition font-medium">Dashboard</a>
+                        <a href="{% url 'account:logout' %}" class="block px-3 py-2.5 rounded-lg bg-slate-200 text-slate-700 hover:bg-slate-300 transition font-medium text-center">Logout</a>
+                        {% else %}
+                        <a href="{% url 'account:login' %}" class="nav-mobile-link block px-3 py-2.5 rounded-lg text-sage-700 hover:bg-sage-100 transition font-medium">Login</a>
+                        <a href="{% url 'account:register' %}" class="block px-3 py-2.5 rounded-lg bg-sage-600 text-white hover:bg-sage-700 transition font-medium text-center btn-primary">Get Started</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Mobile menu toggle (inline for reliability) -->
+    <script>
+        (function() {
+            var menuBtn = document.getElementById("menu-btn");
+            var mobileMenu = document.getElementById("mobile-menu");
+            var menuIconOpen = document.querySelector(".menu-icon-open");
+            var menuIconClose = document.querySelector(".menu-icon-close");
+            if (menuBtn && mobileMenu) {
+                menuBtn.addEventListener("click", function() {
+                    var isOpen = !mobileMenu.classList.contains("hidden");
+                    mobileMenu.classList.toggle("hidden");
+                    if (menuIconOpen) menuIconOpen.classList.toggle("hidden", !isOpen);
+                    if (menuIconClose) menuIconClose.classList.toggle("hidden", isOpen);
+                    menuBtn.setAttribute("aria-expanded", isOpen ? "false" : "true");
+                });
+            }
+            document.querySelectorAll(".nav-mobile-link").forEach(function(link) {
+                link.addEventListener("click", function() {
+                    if (window.innerWidth < 768 && mobileMenu && !mobileMenu.classList.contains("hidden")) {
+                        mobileMenu.classList.add("hidden");
+                        if (menuIconOpen) menuIconOpen.classList.remove("hidden");
+                        if (menuIconClose) menuIconClose.classList.add("hidden");
+                        menuBtn.setAttribute("aria-expanded", "false");
+                    }
+                });
+            });
+        })();
+    </script>
 
     <!-- ================= HERO SECTION ================= -->
-    <section class="max-w-7xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-12 items-center">
-        <!-- Text -->
-        <div>
-            <h1 class="text-4xl md:text-5xl font-bold slide-up leading-tight">
-                Set Goals. <span class="text-sage-600">Stay Consistent.</span><br>
-                Win Real Rewards.
-            </h1>
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 md:pt-10 pb-12 sm:pb-16 md:pb-20">
+        <div class="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
+            <!-- Text -->
+            <div class="text-center md:text-left order-2 md:order-1">
+                <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold slide-up leading-tight">
+                    Set Goals. <span class="text-sage-600">Stay Consistent.</span><br class="hidden sm:block">
+                    Win Real Rewards.
+                </h1>
 
-            <p class="mt-6 text-lg text-sage-700">
-                Goaly helps you break big goals into daily actions, stay accountable,
-                and build productive habits that actually stick.
-            </p>
+                <p class="mt-4 sm:mt-6 text-base sm:text-lg text-sage-700 max-w-xl mx-auto md:mx-0">
+                    Goaly helps you break big goals into daily actions, stay accountable,
+                    and build productive habits that actually stick.
+                </p>
 
-            <!-- Get Started Button -->
-            <div class="mt-8">
-                <a href="{% url 'account:register' %}" 
-                   class="inline-block bg-sage-600 text-white px-6 py-3 rounded-lg hover:bg-sage-700 btn-primary font-semibold whitespace-nowrap">
-                    Get Started
-                </a>
+                <!-- Buttons - Aligned horizontally -->
+                <div class="mt-6 sm:mt-8 flex flex-col sm:flex-row items-center justify-center md:justify-start gap-3 sm:gap-4">
+                    <a href="{% url 'account:register' %}" 
+                       class="w-full sm:w-auto bg-sage-600 text-white px-6 sm:px-8 py-3 sm:py-3.5 rounded-lg hover:bg-sage-700 btn-primary font-semibold whitespace-nowrap transition-all text-center">
+                        Get Started
+                    </a>
+                    <a href="#how-it-works"
+                       class="w-full sm:w-auto border border-sage-600 text-sage-700 px-6 sm:px-8 py-3 sm:py-3.5 rounded-lg hover:bg-sage-100 transition-all text-center">
+                        Learn More
+                    </a>
+                </div>
             </div>
 
-            <div class="mt-8 flex gap-4">
-                <a href="#how-it-works"
-                   class="border border-sage-600 text-sage-700 px-6 py-3 rounded-lg hover:bg-sage-100 transition">
-                    Learn More
-                </a>
+            <!-- SVG Illustration -->
+            <div class="flex justify-center order-1 md:order-2 w-full">
+                <svg class="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl h-auto" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800.005" xmlns:xlink="http://www.w3.org/1999/xlink" role="img" aria-hidden="true">
+                    <g transform="translate(-584.031 -223.366)">
+                      <g transform="translate(584.031 223.366)">
+                        <rect width="293" height="368" rx="14" transform="translate(2.999 2.959)" fill="#fff"/>
+                        <path d="M16.058,0H283.014a16.058,16.058,0,0,1,16.058,16.058V358.283a16.058,16.058,0,0,1-16.058,16.057H16.058A16.058,16.058,0,0,1,0,358.283V16.058A16.058,16.058,0,0,1,16.058,0Z" fill="#d6d6e3"/>
+                        <g transform="translate(23.331 103.49)">
+                          <path d="M8.5-13.91c-.927-6.72,1.378-20.468,1.378-20.468s-5.067,4.771-6.756,4.973-2.031-1.624,0-4.166,5.509-4.5,8.125-6,2.717-.711,2.924,0,.927,17.646,0,25.665S9.428-7.19,8.5-13.91Z" transform="translate(-1.724 40.429)"/>
+                          <path d="M3.212,0A3.212,3.212,0,1,1,0,3.212,3.212,3.212,0,0,1,3.212,0Z" transform="translate(16.058 25.692)" fill="#090814"/>
+                        </g>
+                        <path d="M8.029,0H152.546a8.029,8.029,0,0,1,0,16.058H8.029A8.029,8.029,0,0,1,8.029,0Z" transform="translate(69.248 112.522)" fill="#090814"/>
+                        <g transform="translate(244.877 100.479)">
+                          <rect width="40.144" height="40.144" rx="8" transform="translate(0 0)" fill="#4f6348"/>
+                          <path d="M428.29,518.575A2.875,2.875,0,0,1,426.56,518l-.031-.023-6.513-4.987a2.894,2.894,0,1,1,3.52-4.594l4.219,3.235,9.97-13a2.894,2.894,0,0,1,4.057-.536l-.062.084.064-.083a2.9,2.9,0,0,1,.536,4.057l-11.727,15.293a2.894,2.894,0,0,1-2.3,1.129Z" transform="translate(-410.799 -488.464)" fill="#fff"/>
+                        </g>
+                        <path d="M8.029,0H152.546a8.029,8.029,0,0,1,0,16.058H8.029A8.029,8.029,0,0,1,8.029,0Z" transform="translate(69.248 184.781)" fill="#090814"/>
+                        <path d="M8.029,0H32.115a8.029,8.029,0,0,1,8.029,8.029V32.115a8.029,8.029,0,0,1-8.029,8.029H8.029A8.029,8.029,0,0,1,0,32.115V8.029A8.029,8.029,0,0,1,8.029,0Z" transform="translate(244.877 173.168)" fill="#fff"/>
+                        <path d="M8.029,0H152.546a8.029,8.029,0,0,1,0,16.058H8.029A8.029,8.029,0,0,1,8.029,0Z" transform="translate(69.248 257.901)" fill="#090814"/>
+                        <rect width="40.144" height="40.144" rx="8" transform="translate(244.877 246)" fill="#fff"/>
+                        <g transform="translate(20.822 176.752)">
+                          <path d="M4.128-8.59C.2-9.523.739-11.768,2.426-12.942A18.518,18.518,0,0,0,4.611-14.66q1.039-.827,2.036-1.633t1.888-1.591q.891-.785,1.718-1.569T11.8-20.981q.721-.742,1.315-1.463a16.262,16.262,0,0,0,2.609-4.178,11.258,11.258,0,0,0,.87-4.348,7.664,7.664,0,0,0-.615-3.287,4.216,4.216,0,0,0-1.824-1.951,6.2,6.2,0,0,0-2.991-.657,5.414,5.414,0,0,0-2.8.7A4.925,4.925,0,0,0,6.5-34.194c-.452.848.265,2.291-.806,2.927a2.868,2.868,0,0,1-3.478-.382c-.695-.917.29-2.255.7-3.287a8.513,8.513,0,0,1,1.739-2.736A8.172,8.172,0,0,1,7.411-39.56a9.573,9.573,0,0,1,3.8-.7,10.484,10.484,0,0,1,4.857,1.039,7.267,7.267,0,0,1,3.1,2.991,9.577,9.577,0,0,1,1.082,4.708,14.746,14.746,0,0,1-.551,4.03,16.6,16.6,0,0,1-1.569,3.733,21.359,21.359,0,0,1-2.46,3.436A19.814,19.814,0,0,1,14.2-18.69q-.785.785-1.612,1.569t-1.718,1.527q-.891.742-1.845,1.485t-1.93,1.463s7.667-1.156,11.029-.3,4.528,2.874,0,3.733S8.052-7.657,4.128-8.59Z" transform="translate(-1.15 40.26)"/>
+                          <path d="M3.217,0A3.217,3.217,0,1,1,0,3.217,3.217,3.217,0,0,1,3.217,0Z" transform="translate(23.266 25.68)" fill="#090814"/>
+                        </g>
+                        <g transform="translate(20.823 250.015)">
+                          <path d="M11.922-8.145a9.938,9.938,0,0,1-4.508-1.03,9.254,9.254,0,0,1-3.392-2.855c-.887-1.216-1.674-1.811-1.2-3.115s1.021-2.281,2.282-1.8S6.82-14.27,7.865-13.211a5.45,5.45,0,0,0,4.057,1.589,6.393,6.393,0,0,0,3.156-.751,5.352,5.352,0,0,0,2.1-2.082,6.093,6.093,0,0,0,.751-3.048,5.55,5.55,0,0,0-.816-3.07,5.364,5.364,0,0,0-2.254-1.954c-.959-.458-2,0-3.2,0,0,0-1.814-.15-2.4-1.009a3.052,3.052,0,0,1,0-3.113c.547-.859,2.4-.644,2.4-.644a4.942,4.942,0,0,0,2.576,0,5,5,0,0,0,1.975-1.8,4.969,4.969,0,0,0,.73-2.7,5.291,5.291,0,0,0-.623-2.619,4.487,4.487,0,0,0-1.782-1.76,5.858,5.858,0,0,0-2.877-.644,5.878,5.878,0,0,0-2.576.537,4.758,4.758,0,0,0-1.846,1.567A5.245,5.245,0,0,1,5.1-32.7c-1.106.5-1.815,1.1-2.282,0s.708-2.8,1.524-3.929a8.619,8.619,0,0,1,3.113-2.662,9.106,9.106,0,0,1,4.208-.966,9.882,9.882,0,0,1,4.744,1.073A7.9,7.9,0,0,1,19.5-36.31,7.623,7.623,0,0,1,20.6-32.274a8.03,8.03,0,0,1-.6,3.306,6.978,6.978,0,0,1-1.524,2.211,9.689,9.689,0,0,1-1.911,1.438v.172a7.756,7.756,0,0,1,2.576,1.61,7.8,7.8,0,0,1,1.782,2.555,8.518,8.518,0,0,1,.665,3.478,9.252,9.252,0,0,1-1.267,4.83,9.023,9.023,0,0,1-3.435,3.327A10.055,10.055,0,0,1,11.922-8.145Z" transform="translate(-2.679 40.26)"/>
+                          <path d="M3.123,0A3.123,3.123,0,1,1,0,3.123,3.123,3.123,0,0,1,3.123,0Z" transform="translate(22.109 25.87)" fill="#090814"/>
+                        </g>
+                        <path d="M12.043,0H158.568a12.043,12.043,0,0,1,0,24.086H12.043A12.043,12.043,0,0,1,12.043,0Z" transform="translate(21.075 28.884)" fill="#4f6348"/>
+                      </g>
+                      <g transform="translate(838.178 281.596)">
+                        <path d="M211.253,287.148l50.1,171.261a37.552,37.552,0,0,1-32.766,47.952l-54.67,4.786Z" transform="translate(282.985 -39.584)" fill="#4f6348"/>
+                        <path d="M211.253,287.148l50.1,171.261a37.552,37.552,0,0,1-32.766,47.952l-54.67,4.786Z" transform="translate(282.985 -39.584)" opacity="0.1" style="isolation:isolate"/>
+                        <path d="M598.377,261.906l67.015,110.83,31.553-39.975-61.667-96.548c2.191-11.231-.462-24.27-8.3-35.529-13.714-19.7-38.054-26.468-54.359-15.115s-18.4,36.523-4.688,56.224c7.839,11.26,19.152,18.271,30.442,20.114Z" transform="translate(-558.873 -46.225)" fill="#ed9da0"/>
+                        <path d="M421.35,510.954l8.048,27.365-.273,27.753s52.932,63.668,33.432,201.367L214.545,764.33l29.543-221.577,177.262-31.8Z" transform="translate(35.953 -25.664)" fill="#090814"/>
+                        <path d="M424.543,156.84a70.332,70.332,0,1,0-91.4,67.117l10.485,8.448-17.487,65.765,20.6,15.648,61.821-57.174s-7.482-19.659-15.512-41.166a70.256,70.256,0,0,0,31.5-58.64Z" transform="translate(4.845 -52.072)" fill="#ed9da0"/>
+                        <path d="M256.191,254.636c24.827-.378,70.734,79.309,70.734,79.309l37.709-13.339,77.556-27.454,59.434-24.462c-.025,1.233,24.905-27.929,76.435-24.93l24.255,19.152,3.3,2.623A74.837,74.837,0,0,1,636.18,270.3c11.036,4.437,22.073,12.714,27.293,28.185,2.705,7.98,2.705,24.48,1.082,45.443-5.87,75.9-33.221,237.255-33.221,237.255l-172.71-22.865-12.74.3s-1.514-17.392-2.867-40.168c-.838-13.359-1.6-28.537-2.029-43.144-.3-10.711-.378-21.1-.189-30.241.027-.569.027-1.136.054-1.7.514-16.689,2.191-28.78,5.793-30.1,0,0-11.171-.3-27.292-.893-38.952-1.46-106.845-4.729-116.528-10.008-13.687-7.439-85.448-107.277-85.448-107.277s13.956-40.035,38.814-40.437Z" transform="translate(-165.838 -42.155)" fill="#4f6348"/>
+                        <path d="M1017.455,341.751h0a58.019,58.019,0,0,0-11.2,1.114,49.1,49.1,0,0,0-21.387-4.929h-1.941c-37.425,0-67.764,33.866-67.764,75.642H927.7l2.026-15.415,2.969,15.415h10.448a147.826,147.826,0,0,0-4.847,37.9v76.992h18.96l10.977-28.525-2.745,28.525h143.068V468.014C1108.554,398.282,1067.768,341.751,1017.455,341.751Z" transform="translate(-626.437 -337.936)" fill="#090814"/>
+                      </g>
+                    </g>
+                  </svg>
+                  
             </div>
-        </div>
-
-        <!-- SVG Illustration -->
-        <div class="flex justify-center">
-            <svg width="400" height="400" viewBox="0 0 600 500" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full max-w-md">
-                <!-- Background gradient -->
-                <defs>
-                    <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" style="stop-color:#6a8470;stop-opacity:0.1" />
-                        <stop offset="100%" style="stop-color:#536a58;stop-opacity:0.2" />
-                    </linearGradient>
-                    <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" style="stop-color:#869f8b;stop-opacity:0.3" />
-                        <stop offset="100%" style="stop-color:#6a8470;stop-opacity:0.2" />
-                    </linearGradient>
-                </defs>
-                
-                <!-- Goal target circles -->
-                <circle cx="150" cy="120" r="80" fill="url(#gradient1)" opacity="0.6"/>
-                <circle cx="150" cy="120" r="60" fill="#6a8470" opacity="0.3"/>
-                <circle cx="150" cy="120" r="40" fill="#536a58" opacity="0.4"/>
-                
-                <!-- Checkmark -->
-                <path d="M130 120 L145 135 L170 100" stroke="#f4f7f4" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-                
-                <!-- Progress bars -->
-                <rect x="300" y="150" width="200" height="12" rx="6" fill="#e7ede7"/>
-                <rect x="300" y="150" width="160" height="12" rx="6" fill="#6a8470"/>
-                
-                <rect x="300" y="180" width="200" height="12" rx="6" fill="#e7ede7"/>
-                <rect x="300" y="180" width="140" height="12" rx="6" fill="#869f8b"/>
-                
-                <rect x="300" y="210" width="200" height="12" rx="6" fill="#e7ede7"/>
-                <rect x="300" y="210" width="180" height="12" rx="6" fill="#536a58"/>
-                
-                <!-- AI Brain/Sparkle -->
-                <circle cx="450" cy="80" r="30" fill="url(#gradient2)"/>
-                <path d="M450 50 L450 70 M450 90 L450 110 M430 80 L450 80 M470 80 L490 80 M435 60 L450 50 L465 60 M435 100 L450 110 L465 100" stroke="#6a8470" stroke-width="3" stroke-linecap="round"/>
-                
-                <!-- Calendar/Calendar grid -->
-                <rect x="100" y="280" width="120" height="140" rx="8" fill="#f4f7f4" stroke="#cedbcd" stroke-width="2"/>
-                <rect x="110" y="300" width="100" height="20" fill="#6a8470" opacity="0.2"/>
-                <line x1="120" y1="340" x2="210" y2="340" stroke="#cedbcd" stroke-width="1"/>
-                <line x1="120" y1="370" x2="210" y2="370" stroke="#cedbcd" stroke-width="1"/>
-                <line x1="120" y1="400" x2="210" y2="400" stroke="#cedbcd" stroke-width="1"/>
-                <circle cx="140" cy="355" r="8" fill="#6a8470"/>
-                <circle cx="180" cy="385" r="8" fill="#869f8b"/>
-                
-                <!-- Trophy/Reward -->
-                <path d="M380 320 L420 320 L420 360 L400 360 L400 380 L380 380 Z" fill="#E8C547" opacity="0.8"/>
-                <circle cx="400" cy="300" r="15" fill="#E8C547"/>
-                <path d="M390 300 L410 300" stroke="#f4f7f4" stroke-width="2" stroke-linecap="round"/>
-                
-                <!-- Leaderboard -->
-                <rect x="450" y="280" width="120" height="140" rx="8" fill="#ffffff" stroke="#cedbcd" stroke-width="2"/>
-                <rect x="460" y="290" width="100" height="25" fill="#536a58" opacity="0.1"/>
-                <circle cx="475" cy="330" r="8" fill="#E8C547"/>
-                <circle cx="475" cy="360" r="8" fill="#cedbcd"/>
-                <circle cx="475" cy="390" r="8" fill="#abbfb1"/>
-                <line x1="490" y1="330" x2="550" y2="330" stroke="#6a8470" stroke-width="2"/>
-                <line x1="490" y1="360" x2="520" y2="360" stroke="#869f8b" stroke-width="2"/>
-                <line x1="490" y1="390" x2="510" y2="390" stroke="#abbfb1" stroke-width="2"/>
-            </svg>
         </div>
     </section>
 
     <!-- ================= WHY GOALS FAIL ================= -->
-    <section id="features" class="bg-white py-20 reveal">
-        <div class="max-w-7xl mx-auto px-6 text-center">
-            <h2 class="text-3xl font-bold mb-12">Why Goals Fail</h2>
+    <section id="features" class="bg-white py-12 sm:py-16 md:py-20 reveal">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center">
+            <h2 class="text-2xl sm:text-3xl font-bold mb-8 sm:mb-12">Why Goals Fail</h2>
 
-            <div class="grid md:grid-cols-3 gap-8">
+            <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
                 <div class="p-6 rounded-xl bg-sage-50 card-hover">
                     <h3 class="font-semibold text-xl mb-2">Lack of Motivation</h3>
                     <p class="text-sage-700">
@@ -198,12 +243,12 @@
     </section>
 
     <!-- ================= HOW IT WORKS ================= -->
-    <section id="how-it-works" class="py-20 reveal">
-        <div class="max-w-7xl mx-auto px-6 text-center">
-            <h2 class="text-3xl font-bold mb-4">How Goaly Works</h2>
-            <p class="text-sage-700 mb-12">Achieve your goals in 3 simple steps</p>
+    <section id="how-it-works" class="py-12 sm:py-16 md:py-20 reveal">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center">
+            <h2 class="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">How Goaly Works</h2>
+            <p class="text-sage-700 mb-8 sm:mb-12 text-sm sm:text-base">Achieve your goals in 3 simple steps</p>
 
-            <div class="grid md:grid-cols-3 gap-8">
+            <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
                 <div class="p-6 rounded-xl border border-sage-200 card-hover">
                     <span class="text-3xl font-bold text-sage-600">1</span>
                     <h3 class="font-semibold text-xl mt-4">Set Your Goals</h3>
@@ -232,16 +277,16 @@
     </section>
 
     <!-- ================= CTA ================= -->
-    <section class="bg-sage-700 text-white py-20 reveal">
-        <div class="max-w-7xl mx-auto px-6 text-center">
-            <h2 class="text-3xl font-bold mb-6">Ready to achieve your goals?</h2>
-            <p class="mb-8 text-sage-100">
+    <section class="bg-sage-700 text-white py-12 sm:py-16 md:py-20 reveal">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center">
+            <h2 class="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Ready to achieve your goals?</h2>
+            <p class="mb-6 sm:mb-8 text-sage-100 text-sm sm:text-base max-w-2xl mx-auto">
                 Start building habits that last and compete with others who want more from 2026.
             </p>
 
             <div class="max-w-md mx-auto">
                 <a href="{% url 'account:register' %}" 
-                   class="inline-block bg-white text-sage-700 px-8 py-4 rounded-lg font-semibold hover:bg-sage-100 btn-primary whitespace-nowrap">
+                   class="inline-block bg-white text-sage-700 px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-semibold hover:bg-sage-100 btn-primary whitespace-nowrap transition-all text-sm sm:text-base">
                     Get Started Now
                 </a>
             </div>
@@ -249,8 +294,8 @@
     </section>
 
     <!-- ================= FOOTER ================= -->
-    <footer class="py-8 text-center text-sage-600">
-        <p class="footer-text">© 2026 Goaly. All rights reserved.</p>
+    <footer class="py-6 sm:py-8 text-center text-sage-600 px-4">
+        <p class="footer-text text-sm sm:text-base">© 2026 Goaly. All rights reserved.</p>
     </footer>
 
     <!-- Custom JavaScript -->

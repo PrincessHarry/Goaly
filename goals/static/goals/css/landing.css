@@ -9,6 +9,28 @@
 }
 
 /* =========================
+   NAVBAR & MOBILE MENU
+   ========================= */
+
+/* Ensure mobile menu animates smoothly */
+#mobile-menu {
+    transition: opacity 0.2s ease;
+}
+
+/* Prevent body scroll when mobile menu is open (optional - can enable if desired) */
+/* .menu-open body { overflow: hidden; } */
+
+/* Navbar link touch targets for mobile */
+@media (max-width: 767px) {
+    .nav-mobile-link,
+    #mobile-menu a {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+    }
+}
+
+/* =========================
    SMOOTH PAGE LOAD
    ========================= */
 
